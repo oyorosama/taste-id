@@ -98,6 +98,7 @@ export async function searchMovies(query: string, page = 1): Promise<TMDBSearchR
 
     const response = await fetch(url.toString(), {
         headers: getAuthHeaders(),
+        next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
     if (!response.ok) {
@@ -122,6 +123,7 @@ export async function searchTV(query: string, page = 1): Promise<TMDBSearchRespo
 
     const response = await fetch(url.toString(), {
         headers: getAuthHeaders(),
+        next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
     if (!response.ok) {
@@ -143,6 +145,7 @@ export async function getTrendingMovies(timeWindow: "day" | "week" = "week"): Pr
 
     const response = await fetch(url.toString(), {
         headers: getAuthHeaders(),
+        next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
     if (!response.ok) {
@@ -162,6 +165,7 @@ export async function getMovieDetails(movieId: number) {
 
     const response = await fetch(url.toString(), {
         headers: getAuthHeaders(),
+        next: { revalidate: 86400 }, // Cache for 24 hours (movie details rarely change)
     });
 
     if (!response.ok) return null;

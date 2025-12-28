@@ -2,31 +2,43 @@
 const nextConfig = {
     images: {
         remotePatterns: [
+            // TMDB - Movies & TV
             {
                 protocol: "https",
                 hostname: "image.tmdb.org",
                 pathname: "/t/p/**",
             },
+            // Spotify
             {
                 protocol: "https",
                 hostname: "i.scdn.co",
                 pathname: "/**",
             },
+            // MyAnimeList
             {
                 protocol: "https",
                 hostname: "cdn.myanimelist.net",
                 pathname: "/**",
             },
+            // AniList - Anime & Manga
             {
                 protocol: "https",
                 hostname: "s4.anilist.co",
                 pathname: "/**",
             },
+            // RAWG - Games
+            {
+                protocol: "https",
+                hostname: "media.rawg.io",
+                pathname: "/**",
+            },
+            // IGDB - Games
             {
                 protocol: "https",
                 hostname: "images.igdb.com",
                 pathname: "/**",
             },
+            // Steam CDN - Games
             {
                 protocol: "https",
                 hostname: "cdn.akamai.steamstatic.com",
@@ -54,3 +66,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+

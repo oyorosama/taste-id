@@ -59,6 +59,7 @@ export async function searchBooks(query: string): Promise<{ books: GoogleBook[] 
 
         const response = await fetch(url, {
             headers: { Accept: "application/json" },
+            next: { revalidate: 3600 }, // Cache for 1 hour
         });
 
         if (!response.ok) {

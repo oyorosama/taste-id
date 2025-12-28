@@ -54,6 +54,7 @@ export async function searchArt(query: string): Promise<{ artworks: ArtWork[] }>
             `${ART_API}/artworks/search?q=${encodeURIComponent(query)}&limit=12&fields=id,title,artist_display,artist_title,date_display,medium_display,dimensions,image_id,thumbnail`,
             {
                 headers: { Accept: "application/json" },
+                next: { revalidate: 3600 }, // Cache for 1 hour
             }
         );
 

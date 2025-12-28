@@ -110,6 +110,7 @@ export async function searchAnime(
                     perPage,
                 },
             }),
+            next: { revalidate: 3600 }, // Cache for 1 hour
         });
 
         if (!response.ok) {
@@ -148,6 +149,7 @@ export async function searchManga(
                     perPage,
                 },
             }),
+            next: { revalidate: 3600 }, // Cache for 1 hour
         });
 
         if (!response.ok) {
