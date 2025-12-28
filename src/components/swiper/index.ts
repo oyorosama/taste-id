@@ -1,0 +1,1 @@
+export { SwiperOverlay } from "./SwiperOverlay";
