@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
-// GET /api/collections - Get all collections for demo user
+// GET /api/collections - Get all collections for current user
 export async function GET() {
     try {
+        const session = await auth();
+
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
         const collections = await prisma.collection.findMany({
-            where: { user: { username: "demo" } },
+            where: { userId: session.user.id },
             include: { items: { orderBy: { position: "asc" } } },
             orderBy: { position: "asc" },
         });
@@ -23,27 +33,54 @@ export async function GET() {
 // POST /api/collections - Create a new collection
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { name, type, position } = body;
+        const session = await auth();
 
-        // Get demo user
-        const user = await prisma.user.findUnique({
-            where: { username: "demo" },
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        const body = await request.json();
+        const { name, type } = body;
+
+        if (!name) {
+            return NextResponse.json(
+                { error: "Collection name is required" },
+                { status: 400 }
+            );
+        }
+
+        // Get current collection count to determine position
+        const collectionCount = await prisma.collection.count({
+            where: { userId: session.user.id },
         });
 
-        if (!user) {
+        if (collectionCount >= 9) {
             return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
+                { error: "Maximum of 9 collections allowed" },
+                { status: 400 }
             );
+        }
+
+        // Find the first available position
+        const existingPositions = await prisma.collection.findMany({
+            where: { userId: session.user.id },
+            select: { position: true },
+        });
+        const usedPositions = new Set(existingPositions.map(c => c.position));
+        let position = 0;
+        while (usedPositions.has(position) && position < 9) {
+            position++;
         }
 
         const collection = await prisma.collection.create({
             data: {
                 name,
-                type: type || "movie",
-                position: position ?? 0,
-                userId: user.id,
+                type: type || "mixed",
+                position,
+                userId: session.user.id,
             },
             include: { items: true },
         });

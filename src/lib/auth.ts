@@ -54,6 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         accentColor: true,
                         bgTexture: true,
                         bio: true,
+                        onboardingCompleted: true,
                     },
                 });
 
@@ -62,6 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     session.user.accentColor = dbUser.accentColor;
                     session.user.bgTexture = dbUser.bgTexture;
                     session.user.bio = dbUser.bio;
+                    session.user.onboardingCompleted = dbUser.onboardingCompleted;
                 }
             }
             return session;
@@ -84,15 +86,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     where: { id: user.id },
                     data: { username },
                 });
-
-                // Create default collections for new user
-                await prisma.collection.createMany({
-                    data: [
-                        { name: "Favorites", type: "movie", position: 0, userId: user.id },
-                        { name: "Watchlist", type: "movie", position: 1, userId: user.id },
-                        { name: "Games", type: "game", position: 2, userId: user.id },
-                    ],
-                });
+                // Note: Default collections are now created during onboarding
             }
         },
     },

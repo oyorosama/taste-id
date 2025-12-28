@@ -629,15 +629,15 @@ export function SearchModal({
                                     <div className="flex gap-4 mb-6 p-4 rounded-xl bg-[hsl(var(--surface-overlay))]">
                                         <div className="relative w-20 h-28 rounded-lg overflow-hidden flex-shrink-0">
                                             {selectedItem.image ? (
-                                                <Image
+                                                <SafeImage
                                                     src={selectedItem.image}
                                                     alt={selectedItem.title}
-                                                    fill
+                                                    fallbackEmoji={selectedItem.type === "anime" ? "🎌" : selectedItem.type === "manga" ? "🥭" : selectedItem.type === "game" ? "🎮" : selectedItem.type === "book" ? "📚" : selectedItem.type === "art" ? "🎨" : "🎬"}
                                                     className="object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-[hsl(var(--surface-raised))] flex items-center justify-center">
-                                                    {selectedItem.type === "anime" ? "🎌" : selectedItem.type === "game" ? "🎮" : "🎬"}
+                                                    {selectedItem.type === "anime" ? "🎌" : selectedItem.type === "manga" ? "🥭" : selectedItem.type === "game" ? "🎮" : selectedItem.type === "book" ? "📚" : selectedItem.type === "art" ? "🎨" : "🎬"}
                                                 </div>
                                             )}
                                         </div>

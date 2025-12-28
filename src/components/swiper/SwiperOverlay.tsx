@@ -412,7 +412,7 @@ function SwipeCard({
                 }}
             >
                 {item.image ? (
-                    <Image src={item.image} alt={item.title} fill sizes="(max-width: 768px) 90vw, 384px" className="object-cover" priority />
+                    <Image src={item.image} alt={item.title} fill sizes="(max-width: 768px) 90vw, 384px" className="object-cover" priority unoptimized={item.image.includes("artic.edu") || item.image.includes("steamcdn") || item.image.includes("akamaihd")} />
                 ) : (
                     <div className="w-full h-full bg-[hsl(var(--surface-raised))] flex items-center justify-center">
                         <span className="text-6xl opacity-30">

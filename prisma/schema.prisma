@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // NextAuth.js required models
@@ -49,21 +50,22 @@ model VerificationToken {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  username      String       @unique
-  name          String?
-  email         String?      @unique
-  emailVerified DateTime?
-  image         String?
-  accentColor   String       @default("#6366f1")
-  bgTexture     String       @default("grain")
-  bio           String?
-  accounts      Account[]
-  sessions      Session[]
-  collections   Collection[]
-  savedItems    SavedItem[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                  String       @id @default(cuid())
+  username            String       @unique
+  name                String?
+  email               String?      @unique
+  emailVerified       DateTime?
+  image               String?
+  accentColor         String       @default("#6366f1")
+  bgTexture           String       @default("grain")
+  bio                 String?
+  onboardingCompleted Boolean      @default(false)
+  accounts            Account[]
+  sessions            Session[]
+  collections         Collection[]
+  savedItems          SavedItem[]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 }
 
 model Collection {

@@ -1,7 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import type { Collection, MediaItem } from "@/types";
+
+// Helper to check if image needs unoptimized flag
+function shouldUnoptimize(src: string): boolean {
+    return src.includes("artic.edu") || src.includes("steamcdn") || src.includes("akamaihd");
+}
 
 // Helper to get unique types from collection items
 function getUniqueTypes(items: MediaItem[]): string[] {
@@ -21,6 +27,7 @@ export function CollectionCard({
     accentColor,
     onClick,
 }: CollectionCardProps) {
+    const [imageError, setImageError] = useState(false);
     const itemCount = collection.items.length;
     const coverImage = collection.coverImage || collection.items[0]?.image;
 
@@ -34,7 +41,7 @@ export function CollectionCard({
             style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
         >
             {/* Cover Image */}
-            {coverImage ? (
+            {coverImage && !imageError ? (
                 <Image
                     src={coverImage}
                     alt={collection.name}
@@ -42,6 +49,8 @@ export function CollectionCard({
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-cover transition-transform duration-300 
                      group-hover:scale-105"
+                    unoptimized={shouldUnoptimize(coverImage)}
+                    onError={() => setImageError(true)}
                 />
             ) : (
                 <div className="absolute inset-0 flex items-center justify-center">

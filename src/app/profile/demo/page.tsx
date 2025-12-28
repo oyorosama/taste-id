@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ProfileHeader, CollectionGrid } from "@/components/profile";
+import { ProfileHeader, CollectionGrid, CreateCollectionModal } from "@/components/profile";
 import { SwiperOverlay } from "@/components/swiper/SwiperOverlay";
 import { SearchModal } from "@/components/search/SearchModal";
 import { SettingsMenu, SettingsButton } from "@/components/ui";
@@ -24,6 +24,7 @@ export default function DemoProfilePage() {
     const [activeCollection, setActiveCollection] = useState<Collection | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [createCollectionOpen, setCreateCollectionOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // Fetch user data from API
@@ -122,6 +123,27 @@ export default function DemoProfilePage() {
         }
     };
 
+    // Create new collection
+    const handleCreateCollection = async (name: string, type: string) => {
+        try {
+            const res = await fetch("/api/collections", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, type }),
+            });
+
+            if (res.ok) {
+                // Refresh user data to get updated collections
+                await fetchUser();
+            } else {
+                const error = await res.json();
+                throw new Error(error.error || "Failed to create collection");
+            }
+        } catch (error) {
+            console.error("Failed to create collection:", error);
+            throw error;
+        }
+    };
 
     // Loading state
     if (loading) {
@@ -217,7 +239,7 @@ export default function DemoProfilePage() {
                         accentColor={user.accentColor}
                         isOwner={true}
                         onCollectionClick={(collection) => setActiveCollection(collection)}
-                        onAddCollection={() => setSearchOpen(true)}
+                        onAddCollection={() => setCreateCollectionOpen(true)}
                     />
                 )}
 
@@ -264,6 +286,14 @@ export default function DemoProfilePage() {
                 onColorChange={handleColorChange}
                 onTextureChange={handleTextureChange}
                 isSaving={isSaving}
+            />
+
+            {/* Create Collection Modal */}
+            <CreateCollectionModal
+                isOpen={createCollectionOpen}
+                onClose={() => setCreateCollectionOpen(false)}
+                onCreateCollection={handleCreateCollection}
+                accentColor={user.accentColor}
             />
 
             {/* Swiper Overlay */}

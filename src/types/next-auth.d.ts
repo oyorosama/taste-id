@@ -11,6 +11,7 @@ declare module "next-auth" {
             accentColor: string;
             bgTexture: string;
             bio?: string | null;
+            onboardingCompleted: boolean;
         };
     }
 
@@ -19,6 +20,7 @@ declare module "next-auth" {
         accentColor?: string;
         bgTexture?: string;
         bio?: string | null;
+        onboardingCompleted?: boolean;
     }
 }
 

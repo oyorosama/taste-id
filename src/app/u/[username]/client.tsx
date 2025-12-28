@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { ProfileHeader, CollectionGrid } from "@/components/profile";
+import { ProfileHeader, CollectionGrid, CreateCollectionModal } from "@/components/profile";
 import { SwiperOverlay } from "@/components/swiper/SwiperOverlay";
 import { SearchModal } from "@/components/search/SearchModal";
 import { SettingsMenu, SettingsButton } from "@/components/ui";
@@ -29,6 +29,7 @@ export function UserProfileClient({ profile, isOwner }: UserProfileClientProps) 
     const [activeCollection, setActiveCollection] = useState<Collection | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [createCollectionOpen, setCreateCollectionOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // Update accent color
@@ -128,6 +129,31 @@ export function UserProfileClient({ profile, isOwner }: UserProfileClientProps) 
         }
     };
 
+    // Create new collection
+    const handleCreateCollection = async (name: string, type: string) => {
+        try {
+            const res = await fetch("/api/collections", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, type }),
+            });
+
+            if (res.ok) {
+                const newCollection = await res.json();
+                setUser({
+                    ...user,
+                    collections: [...user.collections, newCollection],
+                });
+            } else {
+                const error = await res.json();
+                throw new Error(error.error || "Failed to create collection");
+            }
+        } catch (error) {
+            console.error("Failed to create collection:", error);
+            throw error;
+        }
+    };
+
     const textureClass = `texture-${user.bgTexture}`;
 
     return (
@@ -209,7 +235,7 @@ export function UserProfileClient({ profile, isOwner }: UserProfileClientProps) 
                         accentColor={user.accentColor}
                         isOwner={isOwner}
                         onCollectionClick={(collection) => setActiveCollection(collection)}
-                        onAddCollection={() => setSearchOpen(true)}
+                        onAddCollection={() => setCreateCollectionOpen(true)}
                     />
                 )}
 
@@ -251,6 +277,13 @@ export function UserProfileClient({ profile, isOwner }: UserProfileClientProps) 
                         onColorChange={handleColorChange}
                         onTextureChange={handleTextureChange}
                         isSaving={isSaving}
+                    />
+
+                    <CreateCollectionModal
+                        isOpen={createCollectionOpen}
+                        onClose={() => setCreateCollectionOpen(false)}
+                        onCreateCollection={handleCreateCollection}
+                        accentColor={user.accentColor}
                     />
                 </>
             )}
