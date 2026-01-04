@@ -1,23 +1,21 @@
 import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
-// Create a direct Prisma client for auth
-const prisma = new PrismaClient();
+// Create Prisma client lazily to avoid initialization errors
+let prismaInstance: PrismaClient | null = null;
 
-// Build providers array dynamically based on available env vars
-const providers = [];
-
-if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
-    providers.push(
-        GitHub({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET,
-        })
-    );
+function getPrisma() {
+    if (!prismaInstance) {
+        prismaInstance = new PrismaClient();
+    }
+    return prismaInstance;
 }
+
+// Build providers array dynamically
+const providers = [];
 
 if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
     providers.push(
@@ -28,17 +26,30 @@ if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
     );
 }
 
+if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
+    providers.push(
+        GitHub({
+            clientId: process.env.GITHUB_ID,
+            clientSecret: process.env.GITHUB_SECRET,
+        })
+    );
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter(getPrisma()),
     providers,
     trustHost: true,
-    debug: process.env.NODE_ENV === "development",
+    secret: process.env.AUTH_SECRET,
+    session: {
+        strategy: "database",
+    },
     callbacks: {
         async session({ session, user }) {
             if (session.user) {
                 session.user.id = user.id;
 
                 try {
+                    const prisma = getPrisma();
                     const dbUser = await prisma.user.findUnique({
                         where: { id: user.id },
                         select: {
@@ -68,6 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async createUser({ user }) {
             if (user.email && user.id) {
                 try {
+                    const prisma = getPrisma();
                     const baseUsername = user.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "");
                     let username = baseUsername || "user";
                     let counter = 1;
