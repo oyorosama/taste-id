@@ -19,6 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientSecret: process.env.GOOGLE_SECRET!,
         }),
     ],
+    trustHost: true, // Required for Vercel serverless
     debug: process.env.NODE_ENV === "development",
     callbacks: {
         async session({ session, user }) {
