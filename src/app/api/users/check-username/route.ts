@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
+// Force dynamic rendering - this route uses request.url
+export const dynamic = "force-dynamic";
+
 // GET /api/users/check-username - Check if username is available
 export async function GET(request: Request) {
     try {
