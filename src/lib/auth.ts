@@ -4,22 +4,34 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
-// Create a direct Prisma client for auth (not using the global singleton)
+// Create a direct Prisma client for auth
 const prisma = new PrismaClient();
+
+// Build providers array dynamically based on available env vars
+const providers = [];
+
+if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
+    providers.push(
+        GitHub({
+            clientId: process.env.GITHUB_ID,
+            clientSecret: process.env.GITHUB_SECRET,
+        })
+    );
+}
+
+if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
+    providers.push(
+        Google({
+            clientId: process.env.GOOGLE_ID,
+            clientSecret: process.env.GOOGLE_SECRET,
+        })
+    );
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     adapter: PrismaAdapter(prisma),
-    providers: [
-        GitHub({
-            clientId: process.env.GITHUB_ID!,
-            clientSecret: process.env.GITHUB_SECRET!,
-        }),
-        Google({
-            clientId: process.env.GOOGLE_ID!,
-            clientSecret: process.env.GOOGLE_SECRET!,
-        }),
-    ],
-    trustHost: true, // Required for Vercel serverless
+    providers,
+    trustHost: true,
     debug: process.env.NODE_ENV === "development",
     callbacks: {
         async session({ session, user }) {
